@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Portfolio Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="hero">
+        <div class="hero-icon">📈</div>
+        <h1>Stock Portfolio Tracker</h1>
+        <p>Track your stocks. Calculate your investments.</p>
+    </header>
+
+    <main class="container">
+        <section class="card">
+            <h2>Add a Stock</h2>
+            <form method="POST" class="stock-form">
+                <label for="stock">Choose stock</label>
+                <select name="stock" id="stock" required>
+                    {% for symbol, price in stocks.items() %}
+                    <option value="{{ symbol }}">{{ symbol }} — ${{ "%.2f"|format(price) }}</option>
+                    {% endfor %}
+                </select>
+
+                <label for="quantity">Quantity</label>
+                <input type="number" id="quantity" name="quantity" min="1" step="1" placeholder="Enter quantity" required>
+
+                <button type="submit" class="button primary">Add Stock</button>
+            </form>
+        </section>
+
+        <section class="card">
+            <h2>Your Portfolio</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Stock</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Investment</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in portfolio %}
+                        <tr>
+                            <td>{{ item.name }}</td>
+                            <td>${{ "%.2f"|format(item.price) }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>${{ "%.2f"|format(item.investment) }}</td>
+                            <td>
+                                <form method="POST" action="{{ url_for('remove_stock', stock_id=item.id) }}">
+                                    <button type="submit" class="button remove">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="empty">No stocks added yet. Add a stock above to get started.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="total">
+                <span>Total Investment</span>
+                <strong>${{ "%.2f"|format(total) }}</strong>
+            </div>
+        </section>
+
+        <section class="card export-card">
+            <div>
+                <h2>Save Your Portfolio</h2>
+                <p>Download your current portfolio as a CSV file.</p>
+            </div>
+            <a class="button primary" href="{{ url_for('export_csv') }}">Download CSV</a>
+        </section>
+
+        <p class="note">Note: Stock prices are sample values and are not live market prices. Portfolio entries are stored temporarily and may reset when the app restarts.</p>
+    </main>
+
+    <footer>Stock Portfolio Tracker · Python + Flask</footer>
+</body>
+</html>
